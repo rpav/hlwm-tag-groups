@@ -42,7 +42,7 @@ if [ ! -r "$template" ]; then
 fi
 
 if [ -z "$tag_src" -a "$cur_group" ]; then
-    tag_src=$cur_group
+    tag_src="$cur_group"
 fi
 
 if [ -z "$tag_dest" ]; then
@@ -74,7 +74,7 @@ tag_src_esc=$(echo "$tag_src" | sed 's/\//\\\//g')
 tag_dest_esc=$(echo "$tag_dest" | sed 's/\//\\\//g')
 
 echo $tag_dest > $CUR_FILE
-cat $GROUP_FILE | grep -v "$tag_src" > "$GROUPS_FILE.tmp"
+cat $GROUP_FILE | grep -v "^$tag_src\$" > "$GROUPS_FILE.tmp"
 mv "$GROUPS_FILE.tmp" "$GROUP_FILE"
 
 (cat $template) |

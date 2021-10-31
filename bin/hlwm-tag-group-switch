@@ -12,6 +12,8 @@ usage() {
     echo "Options:"
     echo
     echo "    -T,--template FILE      Specify an alternate template"
+    echo "    -g,--group GROUP        Switch to group GROUP"
+    echo "    -h,--help               This help"
     echo
     echo "Default template: $DEFAULT_TMPL"
     echo
@@ -21,7 +23,9 @@ while [ "$1" ]; do
     option="$1"
 
     case "$option" in
-        -*) usage; exit 1;;
+        -T|--template) shift; template="$1" ;;
+        -g|--group) shift; new_group="$1" ;;
+        -h|--help|-*) usage; exit 1;;
         *) break ;;
     esac
 
@@ -34,10 +38,12 @@ if [ ! -r "$template" ]; then
     exit 1
 fi
 
-new_group=$($hlib/prompt -p "Group" -i "$GROUP_FILE" -m "<i>Current:</i> <b>$cur_group</b>")
-if [ $? != 0 ]; then
-    echo "$new_group"
-    exit 1
+if [ ! "$new_group" ]; then
+    new_group=$($hlib/prompt -p "Group" -i "$GROUP_FILE" -m "<i>Current:</i> <b>$cur_group</b>")
+    if [ $? != 0 ]; then
+        echo "$new_group"
+        exit 1
+    fi
 fi
 
 if [ "$new_group" = "$cur_group" ]; then
