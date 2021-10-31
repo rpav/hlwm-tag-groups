@@ -1,0 +1,29 @@
+#!/bin/bash
+
+export hlib=$(realpath "$(dirname $(realpath -e $0))/../libexec/hlwm-tag-groups")
+. $hlib/setup
+
+template="$DEFAULT_TMPL"
+
+usage() {
+    echo
+    echo "Usage: hlwm-tag-group-list [OPTIONS...]"
+    echo
+    echo "Options:"
+    echo
+    echo "    -h,--help               This help"
+    echo
+}
+
+while [ "$1" ]; do
+    option="$1"
+
+    case "$option" in
+        -h|--help|-*) usage; exit 1;;
+        *) break ;;
+    esac
+
+    shift
+done
+
+cat "$GROUP_FILE"

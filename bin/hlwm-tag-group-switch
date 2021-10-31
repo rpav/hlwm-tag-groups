@@ -57,6 +57,7 @@ cat $GROUP_FILE | sort -n | uniq > "$GROUP_FILE.tmp"
 mv "$GROUP_FILE.tmp" "$GROUP_FILE"
 
 new_group_esc=$(echo "$new_group" | sed 's/\//\\\//g')
+switched=
 
 (cat $template) |
     while IFS= read -r line; do
@@ -72,10 +73,15 @@ new_group_esc=$(echo "$new_group" | sed 's/\//\\\//g')
 
         if [ $(echo "$tmpl" | grep GROUP) ]; then
             tag=$(echo "$tmpl" | sed "s/GROUP/$new_group_esc/g")
-            $hlib/hc add "$tag"
         else
             tag="$tmpl"
         fi
 
+        $hlib/hc add "$tag"
         $hlib/hc keybind "$key" use "$tag"
+
+        if [ ! $switched ]; then
+            $hlib/hc use "$tag"
+            switched=1
+        fi
     done

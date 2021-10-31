@@ -11,8 +11,8 @@ usage() {
     echo
     echo "Options:"
     echo
-    echo "    --src                   Group to merge, defaults to current"
-    echo "    --dest                  Group to merge _to_"
+    echo "    -s,--src                Group to merge, defaults to current"
+    echo "    -d,--dest               Group to merge _to_"
     echo "    -T,--template FILE      Specify an alternate template"
     echo "    -c, --close             Close windows in GROUP-SRC before merge"
     echo
@@ -24,8 +24,8 @@ while [ "$1" ]; do
     option="$1"
 
     case "$option" in
-        --src) shift; tag_src=$1 ;;
-        --dest) shift; tag_dest=$1 ;;
+        -s|--src) shift; tag_src=$1 ;;
+        -d|--dest) shift; tag_dest=$1 ;;
         -T|--template) shift; template=$1 ;;
         -c|--close) close=1;;
         -*) usage; exit 1;;
@@ -82,6 +82,8 @@ cat $GROUP_FILE |
     done > "$GROUPS_FILE.tmp"
 mv "$GROUPS_FILE.tmp" "$GROUP_FILE"
 
+switched=
+
 (cat $template) |
     while IFS= read -r line; do
         # Discard comment or empty lines
@@ -102,6 +104,12 @@ mv "$GROUPS_FILE.tmp" "$GROUP_FILE"
                 for client in $($hlib/hc list_clients --tag="$src_tag"); do
                     $hlib/hc close "$client"
                 done
+            fi
+
+            # We switch first because we can't merge a currently-viewed tag
+            if [ ! "$switched" ]; then
+                $hlib/hc use "$dest_tag"
+                switched=1
             fi
 
             $hlib/hc merge_tag "$src_tag" "$dest_tag"
