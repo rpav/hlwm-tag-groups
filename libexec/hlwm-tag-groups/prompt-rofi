@@ -1,0 +1,31 @@
+#!/bin/bash
+
+usage() {
+    echo
+    echo "Usage: hlwm-tag-groups/prompt [-p PROMPT] [-i INPUT-FILE]"
+    echo
+}
+
+while [ "$1" ]; do
+    option="$1"
+
+    case "$option" in
+        -p|--prompt) shift; prompt="$1" ;;
+        -i|--input) shift; input="$1" ;;
+        -m|--message) shift; message=("-mesg" "$1") ;;
+        -x) shift; exclude="$1" ;;
+        -*) usage; exit 1 ;;
+    esac
+
+    shift
+done
+
+if [ "$input" ]; then
+    if [ "$exclude" ]; then
+        cat "$input" | grep -v "$exclude" | rofi -dmenu -p "$prompt" "${message[@]}"
+    else
+        cat "$input" | rofi -dmenu -p "$prompt" "${message[@]}"
+    fi
+else
+    rofi -dmenu -p "$prompt" "${message[@]}"
+fi

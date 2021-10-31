@@ -1,7 +1,6 @@
 #!/bin/bash
 
-root=$(dirname $0)/..
-export hlib=$(realpath $root)/libexec/hlwm-tag-groups
+export hlib=$(realpath "$(dirname $(realpath -e $0))/../libexec/hlwm-tag-groups")
 . $hlib/setup
 
 template="$DEFAULT_TMPL"
