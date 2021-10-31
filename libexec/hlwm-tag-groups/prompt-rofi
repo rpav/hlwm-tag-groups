@@ -22,7 +22,13 @@ done
 
 if [ "$input" ]; then
     if [ "$exclude" ]; then
-        cat "$input" | grep -v "$exclude" | rofi -dmenu -p "$prompt" "${message[@]}"
+        # FIXME: This all really ought to be a function; also fix in -merge
+        cat "$input" |
+            while IFS= read -r line; do
+                if [ "$line" != "$exclude" ]; then
+                    echo "$line"
+                fi
+            done | rofi -dmenu -p "$prompt" "${message[@]}"
     else
         cat "$input" | rofi -dmenu -p "$prompt" "${message[@]}"
     fi
