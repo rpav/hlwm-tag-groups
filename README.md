@@ -1,6 +1,6 @@
 # Tag Groups for HLWM
 
-This is an rudimentary implemetation of "tag groups" for [herbstluftwm](https://herbstluftwm.org/index.html).  This uses [rofi](https://github.com/davatorium/rofi) for interactive input, though you can also use shell commands (or extend `prompt`, see below).
+This is a rudimentary implemetation of "tag groups" for [herbstluftwm](https://herbstluftwm.org/index.html).  This uses [rofi](https://github.com/davatorium/rofi) for interactive input, though you can also use shell commands (or extend `prompt`, see below).
 
 ![Prompt using rofi](https://github.com/rpav/hlwm-tag-groups/blob/assets/doc/im/example1.png)
 
