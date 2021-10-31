@@ -1,0 +1,9 @@
+CONFIG_ROOT="$HOME/.config/herbstluftwm"
+GROUP_FILE="$CONFIG_ROOT/tag_groups.txt"
+DEFAULT_TMPL="$CONFIG_ROOT/tag_groups_tmpl.txt"
+
+CUR_FILE="$CONFIG_ROOT/.tag_groups_cur"
+
+if [ -r "$CUR_FILE" ]; then
+    cur_group=$(cat $CUR_FILE)
+fi

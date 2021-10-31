@@ -1,0 +1,98 @@
+#!/bin/bash
+
+root=$(dirname $0)/..
+export hlib=$(realpath $root)/libexec/hlwm-tag-groups
+. $hlib/setup
+
+template="$DEFAULT_TMPL"
+
+usage() {
+    echo
+    echo "Usage: tag-group-merge [OPTIONS...]"
+    echo
+    echo "Options:"
+    echo
+    echo "    --src                   Group to merge, defaults to current"
+    echo "    --dest                  Group to merge _to_"
+    echo "    -T,--template FILE      Specify an alternate template"
+    echo "    -c, --close             Close windows in GROUP-SRC before merge"
+    echo
+    echo "Default template: $DEFAULT_TMPL"
+    echo
+}
+
+while [ "$1" ]; do
+    option="$1"
+
+    case "$option" in
+        --src) shift; tag_src=$1 ;;
+        --dest) shift; tag_dest=$1 ;;
+        -T|--template) shift; template=$1 ;;
+        -c|--close) close=1;;
+        -*) usage; exit 1;;
+        *) break ;;
+    esac
+
+    shift
+done
+
+if [ ! -r "$template" ]; then
+    echo "Error: No template specified or template not found/readable"
+    usage
+    exit 1
+fi
+
+if [ -z "$tag_src" -a "$cur_group" ]; then
+    tag_src=$cur_group
+fi
+
+if [ -z "$tag_dest" ]; then
+    tag_dest=$($hlib/prompt -p "Merge '$tag_src' to" -i "$GROUP_FILE" -x "$cur_group")
+    if [ $? != 0 ]; then
+        echo "$tag_dest"
+        exit 1
+    fi
+fi
+
+if [ -z "$tag_src" -o -z "$tag_dest" ]; then
+    echo "Error: Must specify a group source and destination for merge"
+    usage
+    exit 1
+fi
+
+if [ "$tag_src" = "$tag_dest" ]; then
+    echo "Source and destination the same, doing nothing"
+    exit
+fi
+
+tag_src_esc=$(echo "$tag_src" | sed 's/\//\\\//g')
+tag_dest_esc=$(echo "$tag_dest" | sed 's/\//\\\//g')
+
+echo $tag_dest > $CUR_FILE
+cat $GROUP_FILE | grep -v "$tag_src" > "$GROUPS_FILE.tmp"
+mv "$GROUPS_FILE.tmp" "$GROUP_FILE"
+
+(cat $template) |
+    while IFS= read -r line; do
+        # Discard comment or empty lines
+        comment=$(echo "$line" | grep '^[[:space:]]*#')
+        if [ "$comment" -o -z "$line" ]; then
+            continue
+        fi
+
+        IFS=" " read -ra tmpl <<< "$line"
+        tmpl="${tmpl[0]}"
+        key="${tmpl[1]}"
+
+        if [ $(echo "$tmpl" | grep GROUP) ]; then
+            src_tag=$(echo "$tmpl" | sed "s/GROUP/$tag_src_esc/g")
+            dest_tag=$(echo "$tmpl" | sed "s/GROUP/$tag_dest_esc/g")
+
+            echo "merge $src_tag to $dest_tag"
+            hc merge_tag "$src_tag" "$dest_tag"
+            hc keybind "$key" use "$dest_tag"
+        else
+            tag="$tmpl"
+            echo "skipping merge of $tag"
+        fi
+    done

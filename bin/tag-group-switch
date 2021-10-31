@@ -1,0 +1,78 @@
+#!/bin/bash
+
+root=$(dirname $0)/..
+export hlib=$(realpath $root)/libexec/hlwm-tag-groups
+. $hlib/setup
+
+template="$DEFAULT_TMPL"
+
+usage() {
+    echo
+    echo "Usage: tag-group-switch [OPTIONS...]"
+    echo
+    echo "Options:"
+    echo
+    echo "    -T,--template FILE      Specify an alternate template"
+    echo
+    echo "Default template: $DEFAULT_TMPL"
+    echo
+}
+
+while [ "$1" ]; do
+    option="$1"
+
+    case "$option" in
+        -*) usage; exit 1;;
+        *) break ;;
+    esac
+
+    shift
+done
+
+if [ ! -r "$template" ]; then
+    echo "Error: No template specified or template not found/readable"
+    usage
+    exit 1
+fi
+
+new_group=$($hlib/prompt -p "Group" -i "$GROUP_FILE" -m "<i>Current:</i> <b>$cur_group</b>")
+if [ $? != 0 ]; then
+    echo "$new_group"
+    exit 1
+fi
+
+if [ "$new_group" = "$cur_group" ]; then
+    echo "Already using group $new_group"
+    exit
+fi
+
+echo "$new_group" > "$CUR_FILE"
+echo "$new_group" >> "$GROUP_FILE"
+cat $GROUP_FILE | sort -n | uniq > "$GROUP_FILE.tmp"
+mv "$GROUP_FILE.tmp" "$GROUP_FILE"
+
+new_group_esc=$(echo "$new_group" | sed 's/\//\\\//g')
+
+(cat $template) |
+    while IFS= read -r line; do
+        # Discard comment or empty lines
+        comment=$(echo "$line" | grep '^[[:space:]]*#')
+        if [ "$comment" -o -z "$line" ]; then
+            continue
+        fi
+
+        IFS=" " read -ra tmpl <<< "$line"
+        tmpl="${tmpl[0]}"
+        key="${tmpl[1]}"
+
+        if [ $(echo "$tmpl" | grep GROUP) ]; then
+            tag=$(echo "$tmpl" | sed "s/GROUP/$new_group_esc/g")
+            echo "template: $tmpl key: $key tag: $tag"
+            hc add "$tag"
+        else
+            tag="$tmpl"
+            echo "key: $key tag: $tag"
+        fi
+
+        hc keybind "$key" use "$tag"
+    done
