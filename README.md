@@ -64,3 +64,16 @@ It may be useful to extend this and break it into a number of client-specific op
   * Add `prompt-<CLIENT>`
   * Call what's available
   * Support the common arguments `-i`, `-m`, `-p`, and `-x`, as `prompt-rofi` does
+
+
+## License
+
+GPL3
+
+Copyright (C) 2021, Ryan Pavlik
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
