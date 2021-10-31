@@ -7,9 +7,12 @@ usage() {
 }
 
 rofi=$(which rofi)
+dmenu=$(which dmenu)
 
-if [ "$rofi" -a -x "$rofi" ]; then
+if [ -x "$rofi" ]; then
     exec $hlib/prompt-rofi "$@"
+elif [ -x "$dmenu" ]; then
+    exec $hlib/prompt-dmenu "$@"
 else
     echo "No interactive prompt option found"
     exit 1

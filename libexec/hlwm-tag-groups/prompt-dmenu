@@ -1,0 +1,41 @@
+#!/bin/bash
+
+usage() {
+    echo
+    echo "Usage: hlwm-tag-groups/prompt-dmenu [-p PROMPT] [-i INPUT-FILE]"
+    echo
+    echo "Note: --message not currently implemented"
+    echo
+}
+
+while [ "$1" ]; do
+    option="$1"
+
+    case "$option" in
+        -p|--prompt) shift; prompt="$1" ;;
+        -i|--input) shift; input="$1" ;;
+        -m|--message) shift; message=" $1" ;;
+        -x) shift; exclude="$1" ;;
+        -*) usage; exit 1 ;;
+    esac
+
+    shift
+done
+
+prompt="$prompt"
+
+if [ "$input" ]; then
+    if [ "$exclude" ]; then
+        # FIXME: This all really ought to be a function; also fix in -merge
+        cat "$input" |
+            while IFS= read -r line; do
+                if [ "$line" != "$exclude" ]; then
+                    echo "$line"
+                fi
+            done | dmenu -b -l 4 -p "$prompt"
+    else
+        cat "$input" | dmenu -b -l 4 -p "$prompt"
+    fi
+else
+    dmenu -b -l 4 -p "$prompt"
+fi
