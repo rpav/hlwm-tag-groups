@@ -47,7 +47,13 @@ if [ -z "$tag_src" -a "$cur_group" ]; then
 fi
 
 if [ -z "$tag_dest" ]; then
-    tag_dest=$($hlib/prompt -p "Merge '$tag_src' to" -i "$GROUP_FILE" -x "$cur_group")
+    type="Merge"
+
+    if [ "$close" ]; then
+        type="Close"
+    fi
+
+    tag_dest=$($hlib/prompt -p "$type '$tag_src' to" -i "$GROUP_FILE" -x "$cur_group")
     if [ $? != 0 ]; then
         echo "$tag_dest"
         exit 1
@@ -88,11 +94,15 @@ mv "$GROUPS_FILE.tmp" "$GROUP_FILE"
             src_tag=$(echo "$tmpl" | sed "s/GROUP/$tag_src_esc/g")
             dest_tag=$(echo "$tmpl" | sed "s/GROUP/$tag_dest_esc/g")
 
-            echo "merge $src_tag to $dest_tag"
+            if [ "$close" ]; then
+                for client in $($hlib/hc list_clients --tag="$src_tag"); do
+                    $hlib/hc close "$client"
+                done
+            fi
+
             $hlib/hc merge_tag "$src_tag" "$dest_tag"
             $hlib/hc keybind "$key" use "$dest_tag"
         else
             tag="$tmpl"
-            echo "skipping merge of $tag"
         fi
     done
