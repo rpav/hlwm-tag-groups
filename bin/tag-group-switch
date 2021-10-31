@@ -68,11 +68,11 @@ new_group_esc=$(echo "$new_group" | sed 's/\//\\\//g')
         if [ $(echo "$tmpl" | grep GROUP) ]; then
             tag=$(echo "$tmpl" | sed "s/GROUP/$new_group_esc/g")
             echo "template: $tmpl key: $key tag: $tag"
-            hc add "$tag"
+            $hlib/hc add "$tag"
         else
             tag="$tmpl"
             echo "key: $key tag: $tag"
         fi
 
-        hc keybind "$key" use "$tag"
+        $hlib/hc keybind "$key" use "$tag"
     done

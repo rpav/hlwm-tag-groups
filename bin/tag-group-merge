@@ -89,8 +89,8 @@ mv "$GROUPS_FILE.tmp" "$GROUP_FILE"
             dest_tag=$(echo "$tmpl" | sed "s/GROUP/$tag_dest_esc/g")
 
             echo "merge $src_tag to $dest_tag"
-            hc merge_tag "$src_tag" "$dest_tag"
-            hc keybind "$key" use "$dest_tag"
+            $hlib/hc merge_tag "$src_tag" "$dest_tag"
+            $hlib/hc keybind "$key" use "$dest_tag"
         else
             tag="$tmpl"
             echo "skipping merge of $tag"
