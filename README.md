@@ -2,7 +2,7 @@
 
 This is an rudimentary implemetation of "tag groups" for [herbstluftwm](https://herbstluftwm.org/index.html).  This uses [rofi](https://github.com/davatorium/rofi) for interactive input, though you can also use shell commands (or extend `prompt`, see below).
 
-![Prompt using rofi](https://github.com/rpav/blob/assets/doc/im/example1.png)
+![Prompt using rofi](https://github.com/rpav/hlwm-tag-groups/blob/assets/doc/im/example1.png)
 
 Tag groups are a way to better organize your tags/desktops if you work on multiple projects or tasks at any given time.   For example, perhaps your current set of projects looks like following:
 
