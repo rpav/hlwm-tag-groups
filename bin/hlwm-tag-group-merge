@@ -8,7 +8,7 @@ template="$DEFAULT_TMPL"
 
 usage() {
     echo
-    echo "Usage: tag-group-merge [OPTIONS...]"
+    echo "Usage: hlwm-tag-group-merge [OPTIONS...]"
     echo
     echo "Options:"
     echo

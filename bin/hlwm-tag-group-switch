@@ -8,7 +8,7 @@ template="$DEFAULT_TMPL"
 
 usage() {
     echo
-    echo "Usage: tag-group-switch [OPTIONS...]"
+    echo "Usage: hlwm-tag-group-switch [OPTIONS...]"
     echo
     echo "Options:"
     echo
