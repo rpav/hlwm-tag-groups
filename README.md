@@ -39,11 +39,40 @@ common_0              Alt-3
 
 When you `tag-switch-group`, you will be prompted for a group to switch to, or you can enter the name of a new group.  This name will be substituted for `GROUP` in the template, and the "new" set of tags will be bound to the switching keys.
 
+For more extensive customization, see *Commands and Hooks* below.
+
 ### hlwm-tag-group-merge
 
 When you're done with a group, you may want to close it or merge its windows with another group.  Using `hlwm-tag-group-merge -c` will do the latter.  (However due to the way `hlwm` works, one must still specify a group to merge-to.)
 
 If the "close" option is specified, only _templated_ tags, i.e. not "shared" tags, will have their windows closed.
+
+
+## Commands and Hooks
+
+### Commands
+
+A more extensive template may also include commands:
+
+```
+# Tag-or-template     Keybinding     Commands...
+
+GROUP_0               Alt-1          focus_monitor 0 . use T
+GROUP_1               Alt-2          # defaults to `use T`
+common_0              Alt-3
+```
+
+Commands are specified as a `chain .` with `T` substituted as the tag name for the current group/tag template.  E.g. if `GROUP_0` were specified as the template, and the group name were `foo`, then `T` would be `foo_0`.
+
+
+### Hooks
+
+You may want to perform further actions if a group is switched or merged.  In this case, if the script `~/.config/herbstluftwm/tag_group_hook` is called if present/`+x`.  This is called with arguments as follows:
+
+  * On switch: `tag_group_hook --switch GROUP-NAME`
+  * On merge: `tag_group_hook --merge SRC-GROUP DEST-GROUP`
+
+One use of this is for resetting or changing rules when the group changes.
 
 
 ## Extending

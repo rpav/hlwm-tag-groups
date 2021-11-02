@@ -24,8 +24,8 @@ while [ "$1" ]; do
     option="$1"
 
     case "$option" in
-        -s|--src) shift; tag_src=$1 ;;
-        -d|--dest) shift; tag_dest=$1 ;;
+        -s|--src) shift; grp_src=$1 ;;
+        -d|--dest) shift; grp_dest=$1 ;;
         -T|--template) shift; template=$1 ;;
         -c|--close) close=1;;
         -*) usage; exit 1;;
@@ -41,42 +41,42 @@ if [ ! -r "$template" ]; then
     exit 1
 fi
 
-if [ -z "$tag_src" -a "$cur_group" ]; then
-    tag_src="$cur_group"
+if [ -z "$grp_src" -a "$cur_group" ]; then
+    grp_src="$cur_group"
 fi
 
-if [ -z "$tag_dest" ]; then
+if [ -z "$grp_dest" ]; then
     type="Merge"
 
     if [ "$close" ]; then
         type="Close"
     fi
 
-    tag_dest=$($hlib/prompt -p "$type '$tag_src' to" -i "$GROUP_FILE" -x "$cur_group")
+    grp_dest=$($hlib/prompt -p "$type '$grp_src' to" -i "$GROUP_FILE" -x "$cur_group")
     if [ $? != 0 ]; then
-        echo "$tag_dest"
+        echo "$grp_dest"
         exit 1
     fi
 fi
 
-if [ -z "$tag_src" -o -z "$tag_dest" ]; then
+if [ -z "$grp_src" -o -z "$grp_dest" ]; then
     echo "Error: Must specify a group source and destination for merge"
     usage
     exit 1
 fi
 
-if [ "$tag_src" = "$tag_dest" ]; then
+if [ "$grp_src" = "$grp_dest" ]; then
     echo "Source and destination the same, doing nothing"
     exit
 fi
 
-tag_src_esc=$(echo "$tag_src" | sed 's/\//\\\//g')
-tag_dest_esc=$(echo "$tag_dest" | sed 's/\//\\\//g')
+tag_src_esc=$(echo "$grp_src" | sed 's/\//\\\//g')
+tag_dest_esc=$(echo "$grp_dest" | sed 's/\//\\\//g')
 
-echo $tag_dest > $CUR_FILE
+echo $grp_dest > $CUR_FILE
 cat $GROUP_FILE |
     while IFS= read -r line; do
-        if [ "$line" != "$tag_src" ]; then
+        if [ "$line" != "$grp_src" ]; then
             echo "$line"
         fi
     done > "$GROUPS_FILE.tmp"
@@ -118,3 +118,7 @@ switched=
             tag="$tmpl"
         fi
     done
+
+if [ -x "$CONFIG_ROOT/tag_group_hook" ]; then
+    "$CONFIG_ROOT/tag_group_hook" --merge "$grp_src" "$grp_dest"
+fi

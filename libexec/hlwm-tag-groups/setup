@@ -1,4 +1,4 @@
-CONFIG_ROOT="$HOME/.config/herbstluftwm"
+export CONFIG_ROOT="$HOME/.config/herbstluftwm"
 GROUP_FILE="$CONFIG_ROOT/tag_groups.txt"
 DEFAULT_TMPL="$CONFIG_ROOT/tag_groups_tmpl.txt"
 

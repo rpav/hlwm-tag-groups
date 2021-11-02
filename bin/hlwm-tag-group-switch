@@ -46,11 +46,6 @@ if [ ! "$new_group" ]; then
     fi
 fi
 
-if [ "$new_group" = "$cur_group" ]; then
-    echo "Already using group $new_group"
-    exit
-fi
-
 echo "$new_group" > "$CUR_FILE"
 echo "$new_group" >> "$GROUP_FILE"
 cat $GROUP_FILE | sort -n | uniq > "$GROUP_FILE.tmp"
@@ -60,16 +55,16 @@ new_group_esc=$(echo "$new_group" | sed 's/\//\\\//g')
 switched=
 
 (cat $template) |
-    while IFS= read -r line; do
-        # Discard comment or empty lines
-        comment=$(echo "$line" | grep '^[[:space:]]*#')
-        if [ "$comment" -o -z "$line" ]; then
+    while IFS= read -r raw_line; do
+        # Remove comments and skip empty lines
+        line=$(echo $raw_line | sed 's/\(^#.*\)\|\([^\\]#.*\)//' | sed 's/^[[:space:]]*//')
+        if [ ! "$line" ]; then
             continue
         fi
 
-        IFS=" " read -ra tmpl <<< "$line"
-        tmpl="${tmpl[0]}"
-        key="${tmpl[1]}"
+        IFS=" " read -ra tok <<< "$line"
+        tmpl="${tok[0]}"
+        key="${tok[1]}"
 
         if [ $(echo "$tmpl" | grep GROUP) ]; then
             tag=$(echo "$tmpl" | sed "s/GROUP/$new_group_esc/g")
@@ -78,10 +73,23 @@ switched=
         fi
 
         $hlib/hc add "$tag"
-        $hlib/hc keybind "$key" use "$tag"
+
+        if [ ! "${tok[2]}" ]; then
+            $hlib/hc keybind "$key" use "$tag"
+        else
+            $hlib/hc keybind "$key" sprintf T "%c" "$tag" chain . "${tok[@]:2}"
+        fi
 
         if [ ! $switched ]; then
-            $hlib/hc use "$tag"
+            if [ ! "${tok[2]}" ]; then
+                $hlib/hc use "$tag"
+            else
+                $hlib/hc sprintf T "%c" "$tag" chain . "${tok[@]:2}"
+            fi
             switched=1
         fi
     done
+
+if [ -x "$CONFIG_ROOT/tag_group_hook" ]; then
+    "$CONFIG_ROOT/tag_group_hook" --switch "$new_group"
+fi
