@@ -82,7 +82,10 @@ cat $GROUP_FILE |
     done > "$GROUPS_FILE.tmp"
 mv "$GROUPS_FILE.tmp" "$GROUP_FILE"
 
-switched=
+# Switch to the new group first "for real"
+#   - Triggers switch hooks / bindings
+#   - Viewed tags can't be merged, so this should move away from them
+$(dirname $0)/hlwm-tag-group-switch -g "$grp_dest"
 
 (cat $template) |
     while IFS= read -r line; do
@@ -104,12 +107,6 @@ switched=
                 for client in $($hlib/hc list_clients --tag="$src_tag"); do
                     $hlib/hc close "$client"
                 done
-            fi
-
-            # We switch first because we can't merge a currently-viewed tag
-            if [ ! "$switched" ]; then
-                $hlib/hc use "$dest_tag"
-                switched=1
             fi
 
             $hlib/hc merge_tag "$src_tag" "$dest_tag"
