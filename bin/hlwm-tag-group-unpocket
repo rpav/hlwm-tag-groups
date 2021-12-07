@@ -1,0 +1,10 @@
+#!/bin/sh
+
+export hlib=$(realpath "$(dirname $(realpath -e $0))/../libexec/hlwm-tag-groups")
+. $hlib/setup
+
+pocket_tag="$1"; shift
+
+for c in $($hlib/hc list_clients --tag="$pocket_tag"); do
+    $hlib/hc bring "$c"
+done
