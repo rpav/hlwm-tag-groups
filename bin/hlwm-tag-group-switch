@@ -46,6 +46,7 @@ if [ ! "$new_group" ]; then
     fi
 fi
 
+: > "$CUR_TAGS_FILE"
 echo "$new_group" > "$CUR_FILE"
 echo "$new_group" >> "$GROUP_FILE"
 cat $GROUP_FILE | sort -n | uniq > "$GROUP_FILE.tmp"
@@ -73,6 +74,7 @@ switched=
         fi
 
         $hlib/hc add "$tag"
+        echo "$tag" >> $CUR_TAGS_FILE
 
         if [ ! "${tok[2]}" ]; then
             $hlib/hc keybind "$key" use "$tag"

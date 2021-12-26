@@ -20,6 +20,9 @@ This is what tag groups provides with a few simple utilities:
 
   * *hlwm-tag-group-switch*: Create/switch to a new tag group
   * *hlwm-tag-group-merge*: Merge/delete a tag group
+  * *hlwm-tag-group-switch-tag*: Switch _tags_ numerically or relatively within the current tag group
+  * *hlwm-tag-group-list*: List tag groups
+  * *hlwm-tag-group-unpocket*: "Pocket/unpocket" functionality (see below)
 
 ## Commands
 
@@ -47,6 +50,37 @@ When you're done with a group, you may want to close it or merge its windows wit
 
 If the "close" option is specified, only _templated_ tags, i.e. not "shared" tags, will have their windows closed.
 
+## hlwm-tag-group-switch-tag
+
+Within a group, you may wish to switch to the nth tag, or switch +n/-n (e.g., "next desktop" / "previous desktop" style commands).  This lets you do that:
+
+``` console
+# Switch to the next tag in the group, but don't wrap around:
+
+$ hlwm-tag-group-switch-tag -n +1 --no-wrap
+
+# Switch to the previous tag in the group, or go to the last tag, if already at the first:
+
+$ hlwm-tag-group-switch-tag -n -1
+```
+
+You can bind these to the keys of your choice.
+
+## hlwm-tag-group-unpocket
+
+At times you may wish to move a handful of windows between tag groups (or just tags).  Pocket/unpocket lets you "put windows in a pocket" then retrieve them all later, somewhere else.  For this you need the following:
+
+```shell
+# In your autostart:
+
+POCKET=pocket
+
+hc add $POCKET                         # Add a `pocket` tag
+hc keybind $Mod-z move $POCKET         # Or whatever key you'd prefer
+hc keybind $Mod-Control-z /path/to/hlwm-tag-group-unpocket $POCKET
+```
+
+Now pressing `$Mod-z` will "pocket" the current window, and `$Mod-Control-z` will move _all_ pocketed items to the current tag.
 
 ## Commands and Hooks
 

@@ -1,0 +1,75 @@
+#!/bin/bash
+
+export hlib=$(realpath "$(dirname $(realpath -e $0))/../libexec/hlwm-tag-groups")
+. $hlib/setup
+
+usage() {
+    echo
+    echo "Usage: hlwm-tag-group-switch-tag [OPTIONS...]"
+    echo
+    echo "Options:"
+    echo
+    echo "    -n,--nth <N|+N|-N>      Pick the nth tag, or relative-nth tag"
+    echo "    --no-wrap               Picking a larger or smaller number than exists will not wrap"
+    echo "    -h,--help               This help"
+    echo
+    echo "Default template: $DEFAULT_TMPL"
+    echo
+}
+
+while [ "$1" ]; do
+    option="$1"
+
+    case "$option" in
+        -n|--nth) shift; nth="$1" ;;
+        --no-wrap) nowrap=1 ;;
+        -h|--help|-*) usage; exit 1 ;;
+        *) break ;;
+    esac
+
+    shift
+done
+
+find_cur_num() {
+    IFS=":" read -a curtag <<< $(grep -n $($hlib/hc substitute T tags.focus.name echo T) "$CUR_TAGS_FILE")
+    echo $(( ${curtag[0]} - 1 ))
+}
+
+find_nth() {
+    n=$(( $1 + 1 ))
+    sed "$n""q;d" "$CUR_TAGS_FILE"
+}
+
+if [ -z "$nth" ]; then
+    find_cur_num; exit
+elif [[ $nth =~ ^[+][0-9]+$ || $nth =~ ^[-][0-9]+$  ]]; then
+    cur=$(find_cur_num)
+    n=$((cur + $nth))
+elif [[ $nth =~ ^[0-9]+$ ]]; then
+    n=$nth
+else
+    echo "Bad nth: '$nth'"
+    usage
+    exit 1
+fi
+
+IFS=' ' read -a count <<< $(wc -l "$CUR_TAGS_FILE")
+count=${count[0]}
+
+if [ "$nowrap" ]; then
+    if (( $n < 0 )); then
+        n=0
+    elif (( $ >= $count )); then
+        n=$(( $count - 1 ))
+    fi
+else
+    if (( $n < 0 )); then
+        n=$(( $n % $count + $count ))
+    elif (( $n >= $count )); then
+        n=$(( $n % $count ))
+    fi
+fi
+#n=$(( $n % $count + 1 ))
+tag=$(find_nth $n)
+
+$hlib/hc use $tag
